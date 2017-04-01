@@ -16,13 +16,16 @@
                 });
             },
 
-            chooseRestaurant = function (userId, restaurantId) {
-                var params = {
-                    userId: user.id,
-                    restaurantId: restaurantId
-                },
+            chooseRestaurant = function (restaurantId) {
+                var user = securityService.getCurrentUser(),
+
+                    params = {
+                        userId: user.id,
+                        restaurantId: restaurantId
+                    },
+                    
                     config = serviceConfig.getEndpoint('poll', 'chooseRestaurant', params);
-                
+
                 return $http(config).then(function (response) {
                     return response.data;
                 });

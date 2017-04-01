@@ -57,9 +57,10 @@ describe('login', function () {
     });
 
     describe('chooseUser', function () {
+        
         var user = {
             id: 1,
-            name: ''
+            name: 'User Test'
         };
 
         // call chooseUser on the controller for every test

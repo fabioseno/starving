@@ -38,9 +38,7 @@
         };
 
         vm.chooseRestaurant = function (restaurant) {
-            var user = securityService.getCurrentUser();
-            
-            pollService.chooseRestaurant(user.id, restaurant.id).then(watchResults);
+            pollService.chooseRestaurant(restaurant.id).then(watchResults);
         };
 
         vm.refreshResults = function () {

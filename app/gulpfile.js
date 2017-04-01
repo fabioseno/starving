@@ -6,6 +6,7 @@ var sass = require('gulp-sass');
 var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var sh = require('shelljs');
+var Server = require('karma').Server;
 
 var paths = {
     sass: ['./scss/**/*.scss']
@@ -15,7 +16,7 @@ gulp.task('default', ['sass']);
 gulp.task('serve:before', ['prepare']);
 gulp.task('build:before', ['prepare']);
 
-gulp.task('sass', function(done) {
+gulp.task('sass', function (done) {
     gulp.src('./scss/ionic.app.scss')
         .pipe(sass())
         .on('error', sass.logError)
@@ -53,12 +54,10 @@ gulp.task('git-check', function(done) {
 });
 
 gulp.task('test', function(done) {
-    karma.start({
-        configFile: __dirname + 'karma.conf.js',
+    new Server({
+        configFile: __dirname + '/karma.conf.js',
         singleRun: true
-    }, function() {
-        done();
-    });
+    }, done).start();
 });
 
 gulp.task('prepare', function () {
