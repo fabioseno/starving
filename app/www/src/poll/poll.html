@@ -1,0 +1,59 @@
+<ion-view view-title="Where to eat?">
+    <ion-content>
+        <div data-ng-if="vm.pollStatus === 'open'">
+            <div class="page-instructions padding-horizontal padding-top">
+                <h4>Choose a restaurant</h4>
+            </div>
+            <ion-slides options="sliderOptions" slider="sliderDelegate">
+                <ion-slide-page data-ng-repeat="restaurant in vm.restaurants">
+                    <div class="list card align-center">
+                        <div class="item">
+                            <img class="restaurant-image" data-ng-src="{{ restaurant.image }}" />
+                        </div>
+                        <div class="item">
+                            <h2>{{ restaurant.name }}</h2>
+                            <p>{{ restaurant.cuisine }}</p>
+                            <p>{{ restaurant.price }}</p>
+                            <p class="padding">
+                                <button class="button button-block button-dark" data-ng-click="vm.chooseRestaurant(restaurant);">
+                                    Vote
+                                </button>
+                            </p>
+                        </div>
+                    </div>
+                </ion-slide-page>
+            </ion-slides>
+        </div>
+        <div data-ng-if="vm.pollStatus === 'inProgress'">
+            <div class="page-instructions padding">
+                <h4>Poll still in progress</h4>
+                <p>The results of the poll will be computed by noon. :-(</p>
+            </div>
+            <div class="button-bar padding">
+                <button class="button button-block button-dark" data-ng-click="vm.refreshResults();">
+                    Refresh
+                </button>
+            </div>
+        </div>
+        <div data-ng-if="vm.pollStatus === 'ended'">
+            <div class="page-instructions padding-horizontal padding-top">
+                <h4>And the winner is...</h4>
+            </div>
+            <div class="list card align-center">
+                <div class="item">
+                    <img class="restaurant-image" data-ng-src="{{ vm.restaurant.image }}" />
+                </div>
+                <div class="item">
+                    <h2>{{ vm.restaurant.name }}</h2>
+                    <p>{{ vm.restaurant.cuisine }}</p>
+                    <p>{{ vm.restaurant.price }}</p>
+                </div>
+            </div>
+            <div class="button-bar padding">
+                <button class="button button-outline button-block button-assertive" data-ng-click="vm.logout();">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

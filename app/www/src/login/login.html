@@ -1,0 +1,16 @@
+<ion-view view-title="Who are you?">
+    <ion-content>
+        <div class="page-instructions padding">
+            <h4>Welcome to Starving!</h4>
+            <p>Be honest and choose who you are!</p>
+        </div>
+        <div class="list padding-horizontal">
+            <div class="item item-avatar item-icon-right" data-ng-repeat="user in vm.users | orderBy : 'name'" data-ng-click="vm.chooseUser(user);">
+                <img ng-src="{{ user.avatar }}">
+                <h2>{{ user.name }}</h2>
+                <p>{{ user.position }}</p>
+                <i class="icon ion-chevron-right icon-small"></i>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>
