@@ -2,7 +2,7 @@
 
 ## Description
 
-Every day Pragma team spend 30 minutes trying to decide where to go for lunch. The Starving app was built to help them overcome this problem.
+Every day Pragma team spends 30 minutes trying to decide where to go for lunch. The Starving app was built to help them overcome this problem.
 
 
 ### 1. Pre-requisites
@@ -21,36 +21,44 @@ git clone https://github.com/fabioseno/starving
 ```
 
 
-## App
+## App project (Ionic with AngularJS)
 
 ### 1. Setup
 
 Once you have NodeJS installed, run the following commands to install proper utilities:
 
-**[Bower](https://bower.io/)** (package manager commonly used for frontend libraries)
+- **[Bower](https://bower.io/)** (package manager commonly used for frontend libraries)
 ```
 npm install -g bower
 ```
 
-**[Karma](https://karma-runner.github.io/1.0/index.html)** (task runner that executes Jasmine tests on the app)
+- **[Karma](https://karma-runner.github.io/1.0/index.html)** (task runner that executes Jasmine tests on the app)
 ```
 npm install -g karma-cli
 ```
 
-**[Ionic](http://ionicframework.com/)** (mobile platform that generates hybrid mobile apps)
+- **[Ionic](http://ionicframework.com/)** (mobile platform that generates hybrid mobile apps)
 ```
 npm install -g cordova ionic
 ```
 
-Install application packages `npm install`
+- Install application packages 
+```
+npm install
+```
 
-Install application libraries `bower install`
+- Install application libraries
+```
+bower install
+```
 
 ### 2. Considerations
 
 Mobile app generation with Ionic won't be covered on this document. For further details see [http://ionicframework.com/getting-started/](http://ionicframework.com/getting-started/).
 
 For the present project, it will be possible to preview the functional application on a browser.
+
+An additional login/logout feature was added to the project as it is important to forbid users to vote more than once on the same day (User Story 1).
 
 ### 3. Running the application
 
@@ -72,7 +80,7 @@ PhantomJS 2.1.1 (Mac OS X 0.0.0): Executed 11 of 11 SUCCESS (0.006 secs / 0.093 
 [13:58:21] Finished 'test' after 1.82 s
 ```
 
-## Server
+## Server Project (NodeJS)
 
 ### 1. Setup
 
@@ -252,6 +260,64 @@ var inMemoryPoll = {
     }
 }
 ```
+#### REST API
+
+##### Users
+
+###### ListUsers
+Retrieve a list of six pre-defined users from the server used to log into the mobile application.
+```
+GET http://localhost:3000/users
+```
+
+##### Poll
+
+###### Get status of a poll
+Asks the server about the current poll.
+
+```
+GET http://localhost:3000/status/:userId/:datetime?
+```
+
+As said before, ":datetime?" parameter is optional and was added to help testing the application.
+
+It returns the following structures:
+
+- The user hasn't yet voted and it's before noon.
+```
+var result = {
+    status: 'open',
+    restaurants: [{}, {}, {}]
+}
+```
+
+- The user has already voted.
+```
+var result = {
+    status: 'inProgress',
+    restaurants: [{restaurant1}, {restaurant3}, {restaurant3}]
+}
+```
+
+- The  poll has ended (everybody voted or time has past noon).
+```
+var result = {
+    status: 'ended',
+    restaurant: [{winner-restaurant}]
+}
+```
+
+###### Choose a restaurant
+Asks the server about the current poll.
+
+```
+GET http://localhost:3000/vote/:userId/:restaurantId/:datetime?
+```
+
+As said before, ":datetime?" parameter is optional and was added to help testing the application.
+
+It computes the user vote and returns the same structure explained above.
+
 #### Patterns and guidelines
 
 - both app and server application codes were developed having in mind a modularized approach, which helps organization for medium/large projects on a multi-developer scenario.
