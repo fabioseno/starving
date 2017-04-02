@@ -49,6 +49,7 @@ var users = [
     };
 
 module.exports = {
+    users: users,
     list: list,
     getTotalUsers: getTotalUsers
 };

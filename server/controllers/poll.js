@@ -3,12 +3,12 @@ var moment         = require('moment');
 var userController = require('../controllers/user');
 var restaurantController = require('../controllers/restaurant');
 var inMemoryPoll = {};
-var inMemoryPoll = {"13": {"2017-03-29": [{"id": 1, "votes": [1, 2, 3, 4, 5, 6] }]}};
+//var inMemoryPoll = {"13": {"2017-03-29": [{"id": 1, "votes": [1, 2, 3, 4, 5, 6] }]}};
 
 
 var getMomentDate = function (datetime) {
     if (moment.isDate(new Date(datetime))) {
-        return moment(datetime);
+        return moment(new Date(datetime));
     } else {
         return moment();
     }
@@ -26,7 +26,7 @@ var getMomentDate = function (datetime) {
         var weekOfYear = getMomentDate(datetime).week(),
             formattedDate = getFormattedDate(datetime),
             restaurants = [];
-
+        
         if (inMemoryPoll[weekOfYear] && inMemoryPoll[weekOfYear][formattedDate]) {
             restaurants = inMemoryPoll[weekOfYear][formattedDate];
         }
@@ -79,7 +79,7 @@ var getMomentDate = function (datetime) {
                 break;
             }
         }
-
+        
         return found;
     },
 
@@ -89,8 +89,6 @@ var getMomentDate = function (datetime) {
             votes = 0,
             i;
 
-        console.log(restaurants);
-        
         for (i = 0; i < restaurants.length; i += 1) {
             if (restaurants[i].votes.length >= votes) {
                 votes += restaurants[i].votes.length;
@@ -116,7 +114,7 @@ var getMomentDate = function (datetime) {
                     || (date === getFormattedDate(datetime) && (new Date(datetime) > getNoonDate(datetime)))) {
 
                 mostVotedRestaurant = getMostVotedRestaurant(moment(date, 'YYYY-MM-DD'));
-                
+
                 if (mostVotedRestaurant) {
                     for (j = availableRestaurants.length - 1; j >= 0; j -= 1) {
                         if (availableRestaurants[j].id === mostVotedRestaurant.id) {
@@ -162,51 +160,50 @@ var getMomentDate = function (datetime) {
 
     getStatus = function (req, res) {
         var result = {},
-            noonDate = getNoonDate(),
+            noonDate,
             userHasVoted,
             datetime;
 
         if (req.params.datetime) {
-            datetime = new Date(req.params.datetime).getTime();
+            datetime = new Date(parseInt(req.params.datetime)).getTime();
         } else {
             datetime = getMomentDate(new Date().getTime());
         }
 
         if (req.params.userId) {
+            noonDate = getNoonDate(datetime);
+            
             // open for voting
-            //if (new Date() < noonDate) {
-
-            // user already voted
-            if (hasUserVoted(datetime, parseInt(req.params.userId))) {
-                // everybody has voted
-                if (getTotalVotes(datetime) === userController.getTotalUsers()) {
-                    result = {
-                        status: 'ended',
-                        restaurant: getMostVotedRestaurant(datetime)
-                    };
+            if (new Date(datetime) < noonDate) {
+                // user already voted
+                if (hasUserVoted(datetime, parseInt(req.params.userId))) {
+                    // everybody has voted
+                    if (getTotalVotes(datetime) === userController.getTotalUsers()) {
+                        result = {
+                            status: 'ended',
+                            restaurant: getMostVotedRestaurant(datetime)
+                        };
+                    } else {
+                        result = {
+                            status: 'inProgress'
+                        };
+                    }
                 } else {
                     result = {
-                        status: 'inProgress'
+                        status: 'open',
+                        restaurants: getAvailableRestaurants(datetime)
                     };
                 }
             } else {
                 result = {
-                    status: 'open',
-                    restaurants: getAvailableRestaurants(datetime)
+                    status: 'ended',
+                    restaurant: getMostVotedRestaurant(datetime)
                 };
             }
-            //            } else {
-            //                result = {
-            //                    status: 'ended',
-            //                    restaurant: getMostVotedRestaurant(date)
-            //                };
-            //            }
 
-console.log('>> ' + JSON.stringify(inMemoryPoll));
+            result.date = new Date(datetime);
             return res.send({ success: true, data: result});
         }
-
-console.log('>> ' + JSON.stringify(inMemoryPoll));
 
         return res.send({ success: false });
     },
@@ -221,55 +218,53 @@ console.log('>> ' + JSON.stringify(inMemoryPoll));
             i;
 
         if (req.params.datetime) {
-            datetime = new Date(req.params.datetime).getTime();
+            datetime = new Date(parseInt(req.params.datetime)).getTime();
         } else {
             datetime = getMomentDate(new Date().getTime());
         }
-        
+
         if (!hasUserVoted(datetime, userId)) {
             var weekOfYear = getMomentDate(datetime).week();
-            
+
             var formattedDate = getFormattedDate(datetime);
 
-            //if (new Date(datetime) < getNoonDate(datetime)) {
-            if (inMemoryPoll[weekOfYear] && inMemoryPoll[weekOfYear][formattedDate]) {
-                restaurants = inMemoryPoll[weekOfYear][formattedDate];
+            if (new Date(datetime) < getNoonDate(datetime)) {
+    
+                if (inMemoryPoll[weekOfYear] && inMemoryPoll[weekOfYear][formattedDate]) {
+                    restaurants = inMemoryPoll[weekOfYear][formattedDate];
 
-                for (i = 0; i < restaurants.length; i += 1) {
-                    if (restaurants[i].id === restaurantId) {
-                        restaurants[i].votes.push(userId);
+                    for (i = 0; i < restaurants.length; i += 1) {
+                        if (restaurants[i].id === restaurantId) {
+                            restaurants[i].votes.push(userId);
 
-                        restaurantFound = true;
+                            restaurantFound = true;
+                        }
+                    }
+                }
+
+                if (!restaurantFound) {
+                    if (restaurantController.getRestaurant(restaurantId)) {
+                        if (!inMemoryPoll[weekOfYear]) {
+                            inMemoryPoll[weekOfYear] = {};
+                        }
+
+                        if (!inMemoryPoll[weekOfYear][formattedDate]) {
+                            inMemoryPoll[weekOfYear][formattedDate] = [];
+                        }
+
+                        inMemoryPoll[weekOfYear][formattedDate].push({
+                            id: restaurantId,
+                            votes: [userId]
+                        });
                     }
                 }
             }
-
-            if (!restaurantFound) {
-                if (restaurantController.getRestaurant(restaurantId)) {
-                    if (!inMemoryPoll[weekOfYear]) {
-                        inMemoryPoll[weekOfYear] = {};
-                    }
-
-                    if (!inMemoryPoll[weekOfYear][formattedDate]) {
-                        inMemoryPoll[weekOfYear][formattedDate] = [];
-                    }
-
-                    inMemoryPoll[weekOfYear][formattedDate].push({
-                        id: restaurantId,
-                        votes: [userId]
-                    });
-                }
-            }
+        } else {
+            result = {
+                success: false,
+                message: 'Time limit has already been reached'
+            };
         }
-
-        //        } else {
-        //            result = {
-        //                success: false,
-        //                message: 'Time limit has already been reached'
-        //            };
-        //        }
-
-console.log('>> ' + JSON.stringify(inMemoryPoll));
 
         getStatus(req, res);
     };

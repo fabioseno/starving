@@ -1,16 +1,17 @@
 {
-  "name": "starving",
-  "version": "1.0.0",
-  "description": "The definitive tool to help you choose the restaurant for your lunch",
-  "main": "server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "author": "Fábio Akira Yoshida",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^4.15.2",
-    "moment": "^2.18.1"
-  }
+    "name": "starving",
+    "version": "1.0.0",
+    "description": "The definitive tool to help you choose the restaurant for your lunch",
+    "main": "app.js",
+    "scripts": {
+        "test": "./node_modules/.bin/jasmine-node spec"
+    },
+    "author": "Fábio Akira Yoshida",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.15.2",
+        "jasmine-node": "^1.14.5",
+        "moment": "^2.18.1",
+        "request": "^2.81.0"
+    }
 }
